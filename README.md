@@ -1,24 +1,27 @@
-# Birthday Palette v0.2
+# Birthday Palette v0.3
 
-スマホ優先の誕生日管理アプリ。React + Vite + Firebase Authentication / Firestore / Storage。
+React + Vite + Firebase の誕生日管理アプリです。
 
-## Vercel環境変数
-`.env.example` の7項目をVercelのEnvironment Variablesへ登録し、再デプロイしてください。
+## v0.3の変更
+- カレンダー／一覧に「コンパクト・標準・詳細」の即時切替を追加。選択はアカウント設定に保存。
+- コンパクトは名前・誕生日を中心に表示、標準は従来の表示、詳細は生年・公開範囲・タグ・備考を表示。
+- アカウントプロフィールに写真アップロードを追加（5MB未満）。
+- グループの名称変更・削除を追加。削除時は所属人物を未分類に移動。
+- タグの名称変更・削除を追加。人物に付与されたタグにも反映。
+- データ枠の名称変更・削除を追加。最後の1枠は削除不可。削除時は配下の人物・グループも削除。
+- ToDoカレンダー連携の設定案内を追加。既存のtv-todo-bridgeはTV予定表とToDo間の連携専用で、Birthday Paletteを直接接続するAPIはまだありません。既存連携を壊さないよう、この版では未接続のままです。
 
-## Firebase設定
-1. Authenticationでメール/パスワード・Googleを有効化。
-2. Firestore > ルールへ `firestore.rules` を貼り付けて「公開」。本ルールはログイン中の本人の `/users/{uid}/...` のみ許可します。
-3. 画像を使う場合のみStorageを有効化し、`storage.rules` を公開してください。Storageが未設定でも画像なしの人物データは保存できます。
-4. Authenticationの承認済みドメインにVercelドメインを登録。
+## Vercel
+既存のVercelプロジェクトへ、フォルダ内のファイルを置き換えてデプロイしてください。
+環境変数はv0.2から変更ありません。
 
-## データ構造
-- `users/{uid}/books/{bookId}` : データ枠（誕生日帳）と公開範囲設定
-- `users/{uid}/books/{bookId}/people/{personId}` : 人物・誕生日・色・タグ・備考
-- `users/{uid}/books/{bookId}/groups/{groupId}` : グループ
-- `users/{uid}/settings/profile` : 表示名・アバター色
-- `users/{uid}/settings/display` : 表示設定
+## Firebase Storage
+プロフィール画像と人物画像を使う場合は、Firebase ConsoleでStorageを有効化してください。
+その後 `storage.rules` の内容を Firebase Storage > Rules に反映してください。
+画像は5MB未満、画像形式のみ許可しています。保存先はユーザーUID配下です。
 
-## 注意
-- データ枠ごとの非公開/限定公開/公開の設定UIと公開ページの入口を用意しています。
-- 現時点では公開・共有の実配信は未接続です。誤公開を避けるためFirestoreは本人のみアクセス可能です。公開データベースを有効化する段階で公開用コレクションとルールを追加します。
-- v0.1の旧パス `users/{uid}/people` / `groups` はv0.2のデータ枠配下へ自動移行しません。旧版で保存済みデータがある場合は、更新前にお知らせください。
+## Firestore
+Firestoreの保存先構造・既存データ形式はv0.2から変更していません。Firestoreルールの変更は不要です。
+
+## ToDoカレンダー連携について
+既存の中継Worker `tv-todo-bridge` は `/api/link/code`、`/api/link/redeem`、`/api/link/status`、`/api/schedules` を持ち、TVアプリとToDoアプリの2者連携を前提にしています。Birthday Paletteは別Firebaseプロジェクト `birthday-7852d` なので、単純に既存のTV役割として接続してはいけません。次段階で誕生日専用の連携テーブル/APIとToDo側の日めくり表示を追加します。
