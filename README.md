@@ -1,39 +1,24 @@
-# Birthday Palette (第一版)
+# Birthday Palette v0.2
 
-スマートフォン優先の誕生日管理Webアプリです。Firebase Authentication（メール/パスワード・Google）、Cloud Firestore、Firebase Storageを使用します。
+スマホ優先の誕生日管理アプリ。React + Vite + Firebase Authentication / Firestore / Storage。
 
-## セットアップ
+## Vercel環境変数
+`.env.example` の7項目をVercelのEnvironment Variablesへ登録し、再デプロイしてください。
 
-1. Node.js 20以降を用意します。
-2. このフォルダで `npm install` を実行します。
-3. `.env.example` を `.env` にコピーし、Firebase Webアプリの設定値を入力します。
-4. `npm run dev` でローカル起動、`npm run build` で本番ビルドします。
+## Firebase設定
+1. Authenticationでメール/パスワード・Googleを有効化。
+2. Firestore > ルールへ `firestore.rules` を貼り付けて「公開」。本ルールはログイン中の本人の `/users/{uid}/...` のみ許可します。
+3. 画像を使う場合のみStorageを有効化し、`storage.rules` を公開してください。Storageが未設定でも画像なしの人物データは保存できます。
+4. Authenticationの承認済みドメインにVercelドメインを登録。
 
-## Firebase側の設定
+## データ構造
+- `users/{uid}/books/{bookId}` : データ枠（誕生日帳）と公開範囲設定
+- `users/{uid}/books/{bookId}/people/{personId}` : 人物・誕生日・色・タグ・備考
+- `users/{uid}/books/{bookId}/groups/{groupId}` : グループ
+- `users/{uid}/settings/profile` : 表示名・アバター色
+- `users/{uid}/settings/display` : 表示設定
 
-- Authenticationでメール/パスワードとGoogleを有効化。
-- Firestore Databaseを作成し、`firestore.rules` の内容を「ルール」に公開。
-- Storageを利用する場合はFirebase ConsoleでStorageを有効化し、`storage.rules` を公開。
-- Authentication > Settings > Authorized domains に、開発/公開で使うドメインを追加。
-- Firebase Storageはプロジェクトのプラン・利用条件を確認してから有効化してください。
-
-## Vercel
-
-GitHubへアップロード後、VercelでリポジトリをImportします。Framework PresetはVite、Build Commandは `npm run build`、Output Directoryは `dist`。Environment Variablesに`.env.example`と同じ `VITE_` 変数を登録します。
-
-## 現在の機能
-
-- メール/パスワード新規登録・ログイン、Googleログイン
-- アカウントごとの人物データ保存
-- 月間カレンダー、今月の誕生日表示
-- 一覧、近日順/五十音順/日付順/グループ別ソート、検索、グループ絞り込み
-- 人物の追加/編集/削除、誕生日（生年は任意）、カラー、グループ、画像、備考
-- グループ追加/削除
-- 文字サイズ、一覧密度の設定
-
-## 第一版の範囲・注意
-
-- 公開/共有機能はまだ実装していません。データはログイン中の本人だけが読み書きできます。
-- 画像アップロードにはFirebase Storageの有効化とルール公開が必要です。Storage未設定時は画像保存に失敗します。
-- Firestoreルールはユーザーごとのデータ領域だけを許可します。公開データベース用ルールは後続段階で別途設計します。
-- 画像は5MB未満に制限しています。実運用前に画像圧縮を追加することを推奨します。
+## 注意
+- データ枠ごとの非公開/限定公開/公開の設定UIと公開ページの入口を用意しています。
+- 現時点では公開・共有の実配信は未接続です。誤公開を避けるためFirestoreは本人のみアクセス可能です。公開データベースを有効化する段階で公開用コレクションとルールを追加します。
+- v0.1の旧パス `users/{uid}/people` / `groups` はv0.2のデータ枠配下へ自動移行しません。旧版で保存済みデータがある場合は、更新前にお知らせください。

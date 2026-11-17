@@ -3,10 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    // All private data, including books, people, groups, profile and settings,
+    // is accessible only to the authenticated owner.
     match /users/{uid}/{document=**} {
-      allow read, write: if isOwner(uid);
+      allow read, create, update, delete: if isOwner(uid);
     }
-    // Public/shared collections are intentionally not enabled in this first release.
+    // Public directory rules will be added only when public publishing is implemented.
     match /{document=**} { allow read, write: if false; }
   }
 }
